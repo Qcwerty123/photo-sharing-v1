@@ -1,17 +1,16 @@
 import React from 'react';
 import { Typography, Button, Paper } from '@mui/material';
 import { useParams, Link } from 'react-router-dom';
-import fetchModel from '../../modelData/models';
-import './styles.css'; 
+import models from '../../modelData/models';
 
 function UserDetail() {
   const { userId } = useParams();
-  const user = fetchModel.userModel(userId);
+  const user = models.userModel(userId);
 
-  if (!user) return <Typography>Người dùng không tồn tại.</Typography>;
+  if (!user) return <Typography style={{ padding: '20px' }}>Người dùng không tồn tại.</Typography>;
 
   return (
-    <Paper className="user-detail-paper">
+    <Paper style={{ padding: '20px', margin: '20px' }} elevation={3}>
       <Typography variant="h4" gutterBottom>
         {user.first_name} {user.last_name}
       </Typography>
@@ -24,7 +23,7 @@ function UserDetail() {
         color="primary" 
         component={Link} 
         to={`/photos/${user._id}`}
-        className="view-photos-button"
+        style={{ marginTop: '20px' }}
       >
         Xem ảnh của {user.first_name}
       </Button>
