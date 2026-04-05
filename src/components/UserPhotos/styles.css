@@ -1,0 +1,39 @@
+.photo-card {
+  margin-bottom: 30px;
+}
+
+.photo-media {
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.photo-divider {
+  margin: 10px 0 !important;
+}
+
+.comment-container {
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.comment-user-link {
+  text-decoration: none;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.comment-user-link:hover {
+  text-decoration: underline;
+}
+
+.comment-date {
+  font-size: 0.8em;
+  color: gray;
+  margin-left: 5px;
+}
+
+.comment-text {
+  margin-top: 5px;
+}
