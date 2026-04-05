@@ -1,73 +1,105 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography, Card, CardMedia, CardContent, Divider, Button } from '@mui/material';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import models from '../../modelData/models';
+import fetchModel from '../../lib/fetchModelData';
 
 function UserPhotos({ advancedFeatures }) {
   const { userId, photoId } = useParams();
-  const navigate = useNavigate(); // Dùng useNavigate cho React Router v6
-  const photos = models.photoOfUserModel(userId);
+  const navigate = useNavigate();
+  
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Helper format ngày tháng
+  useEffect(() => {
+    const loadPhotos = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchModel(`/photosOfUser/${userId}`);
+        setPhotos(response.data);
+      } catch (error) {
+        console.error("Lỗi lấy ảnh:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPhotos();
+  }, [userId]);
+
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('vi-VN', options);
+    return new Date(dateString).toLocaleDateString('vi-VN', { 
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
   };
 
-  if (!photos || photos.length === 0) {
-    return <Typography style={{ padding: '20px' }}>Người dùng này chưa đăng bức ảnh nào.</Typography>;
-  }
+  if (loading) return <Typography style={{ padding: '20px' }}>Đang tải ảnh...</Typography>;
+  if (photos.length === 0) return <Typography style={{ padding: '20px' }}>Chưa có bức ảnh nào.</Typography>;
 
-  // ==========================================
-  // CHẾ ĐỘ: NÂNG CAO (EXTRA CREDIT)
-  // ==========================================
+  // === EXTRA CREDIT: CHẾ ĐỘ STEPPER ===
   if (advancedFeatures) {
     let currentIndex = photos.findIndex(p => p._id === photoId);
-    if (currentIndex === -1) currentIndex = 0; // Mặc định ảnh đầu tiên
+    if (currentIndex === -1) currentIndex = 0;
     
     const currentPhoto = photos[currentIndex];
 
-    const handlePrev = () => {
-      const prevPhoto = photos[currentIndex - 1];
-      navigate(`/photos/${userId}/${prevPhoto._id}`);
-    };
-
-    const handleNext = () => {
-      const nextPhoto = photos[currentIndex + 1];
-      navigate(`/photos/${userId}/${nextPhoto._id}`);
-    };
-
     return (
       <Card style={{ maxWidth: '800px', margin: '20px auto' }}>
-        {/* Bộ điều khiển Stepper */}
+        <CardMedia
+          component="img"
+          src={`/images/${currentPhoto.file_name}`}
+          alt="User photo"
+          style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
+        />
+        
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px' }}>
-          <Button variant="contained" disabled={currentIndex === 0} onClick={handlePrev}>
-            Back
+          <Button variant="contained" disabled={currentIndex === 0} 
+            onClick={() => navigate(`/photos/${userId}/${photos[currentIndex - 1]._id}`)}>
+            Ngược Lại
           </Button>
           <Typography variant="body1" style={{ alignSelf: 'center', fontWeight: 'bold' }}>
             Ảnh {currentIndex + 1} / {photos.length}
           </Typography>
-          <Button variant="contained" disabled={currentIndex === photos.length - 1} onClick={handleNext}>
-            Next
+          <Button variant="contained" disabled={currentIndex === photos.length - 1} 
+            onClick={() => navigate(`/photos/${userId}/${photos[currentIndex + 1]._id}`)}>
+            Tiếp Theo
           </Button>
         </div>
 
-        <CardMedia
-          component="img"
-          src={require(`../../images/${currentPhoto.file_name}`)}
-          alt="User photo"
-          style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
-        />
-    
-
         <CardContent>
-          <Typography variant="caption" color="textSecondary">
-            Đăng lúc: {formatDate(currentPhoto.date_time)}
-          </Typography>
+          <Typography variant="caption" color="textSecondary">Đăng lúc: {formatDate(currentPhoto.date_time)}</Typography>
           <Divider style={{ margin: '10px 0' }} />
           <Typography variant="h6">Bình luận:</Typography>
-          {currentPhoto.comments && currentPhoto.comments.length > 0 ? (
-            currentPhoto.comments.map((comment) => (
+          {currentPhoto.comments?.map((comment) => (
+            <div key={comment._id} style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
+              <Typography variant="body2">
+                <Link to={`/users/${comment.user._id}`} style={{ textDecoration: 'none', fontWeight: 'bold', color: '#1976d2' }}>
+                  {comment.user.first_name} {comment.user.last_name}
+                </Link>
+                {' - '}<span style={{ fontSize: '0.8em', color: 'gray' }}>{formatDate(comment.date_time)}</span>
+              </Typography>
+              <Typography variant="body1" style={{ marginTop: '5px' }}>{comment.comment}</Typography>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // === CHẾ ĐỘ HIỂN THỊ TẤT CẢ ===
+  return (
+    <div style={{ padding: '20px' }}>
+      {photos.map((photo) => (
+        <Card key={photo._id} style={{ marginBottom: '40px' }}>
+          <CardMedia
+            component="img"
+            src={`/images/${photo.file_name}`}
+            alt="User photo"
+            style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
+          />
+          <CardContent>
+            <Typography variant="caption" color="textSecondary">Đăng lúc: {formatDate(photo.date_time)}</Typography>
+            <Divider style={{ margin: '10px 0' }} />
+            <Typography variant="h6">Bình luận:</Typography>
+            {photo.comments?.map((comment) => (
               <div key={comment._id} style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
                 <Typography variant="body2">
                   <Link to={`/users/${comment.user._id}`} style={{ textDecoration: 'none', fontWeight: 'bold', color: '#1976d2' }}>
@@ -77,50 +109,7 @@ function UserPhotos({ advancedFeatures }) {
                 </Typography>
                 <Typography variant="body1" style={{ marginTop: '5px' }}>{comment.comment}</Typography>
               </div>
-            ))
-          ) : (
-            <Typography variant="body2" color="textSecondary">Chưa có bình luận nào.</Typography>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ==========================================
-  // CHẾ ĐỘ: CƠ BẢN (HIỂN THỊ TẤT CẢ)
-  // ==========================================
-  return (
-    <div style={{ padding: '20px' }}>
-      {photos.map((photo) => (
-        <Card key={photo._id} style={{ marginBottom: '40px' }}>
-          <CardMedia
-            component="img"
-            src={require(`../../images/${photo.file_name}`)}
-            alt="User photo"
-            style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
-          />
-          <CardContent>
-            <Typography variant="caption" color="textSecondary">
-              Đăng lúc: {formatDate(photo.date_time)}
-            </Typography>
-            <Divider style={{ margin: '10px 0' }} />
-            
-            <Typography variant="h6">Bình luận:</Typography>
-            {photo.comments && photo.comments.length > 0 ? (
-              photo.comments.map((comment) => (
-                <div key={comment._id} style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
-                  <Typography variant="body2">
-                    <Link to={`/users/${comment.user._id}`} style={{ textDecoration: 'none', fontWeight: 'bold', color: '#1976d2' }}>
-                      {comment.user.first_name} {comment.user.last_name}
-                    </Link>
-                    {' - '}<span style={{ fontSize: '0.8em', color: 'gray' }}>{formatDate(comment.date_time)}</span>
-                  </Typography>
-                  <Typography variant="body1" style={{ marginTop: '5px' }}>{comment.comment}</Typography>
-                </div>
-              ))
-            ) : (
-              <Typography variant="body2" color="textSecondary">Chưa có bình luận nào.</Typography>
-            )}
+            ))}
           </CardContent>
         </Card>
       ))}
