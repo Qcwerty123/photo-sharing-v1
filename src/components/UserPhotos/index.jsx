@@ -43,26 +43,26 @@ function UserPhotos({ advancedFeatures }) {
 
     return (
       <Card style={{ maxWidth: '800px', margin: '20px auto' }}>
-        <CardMedia
-          component="img"
-          src={`/images/${currentPhoto.file_name}`}
-          alt="User photo"
-          style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
-        />
-        
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px' }}>
           <Button variant="contained" disabled={currentIndex === 0} 
             onClick={() => navigate(`/photos/${userId}/${photos[currentIndex - 1]._id}`)}>
-            Ngược Lại
+            Back
           </Button>
           <Typography variant="body1" style={{ alignSelf: 'center', fontWeight: 'bold' }}>
             Ảnh {currentIndex + 1} / {photos.length}
           </Typography>
           <Button variant="contained" disabled={currentIndex === photos.length - 1} 
             onClick={() => navigate(`/photos/${userId}/${photos[currentIndex + 1]._id}`)}>
-            Tiếp Theo
+            Next
           </Button>
         </div>
+
+        <CardMedia
+          component="img"
+          src={require(`../../images/${currentPhoto.file_name}`)}
+          alt="User photo"
+          style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
+        />        
 
         <CardContent>
           <Typography variant="caption" color="textSecondary">Đăng lúc: {formatDate(currentPhoto.date_time)}</Typography>
@@ -91,7 +91,7 @@ function UserPhotos({ advancedFeatures }) {
         <Card key={photo._id} style={{ marginBottom: '40px' }}>
           <CardMedia
             component="img"
-            src={`/images/${photo.file_name}`}
+            src={require(`../../images/${photo.file_name}`)}
             alt="User photo"
             style={{ maxHeight: '600px', objectFit: 'contain', backgroundColor: '#f0f0f0' }}
           />
