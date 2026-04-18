@@ -5,9 +5,9 @@
 async function fetchModel(url) {
   try {
     // chạy ở codesanbox
-    const BACKEND_URL_CodeSanBox = "https://5tk53p-8080.csb.app";
+    const BACKEND_URL_CodeSanBox = "https://9dvcfy-8081.csb.app";
     // chạy ở local
-    const BACKEND_URL = "http://localhost:8080";
+    const BACKEND_URL = "http://localhost:8081";
 
     const response = await fetch(`${BACKEND_URL_CodeSanBox}${url}`);
 

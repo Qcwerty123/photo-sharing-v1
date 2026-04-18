@@ -1,13 +1,19 @@
-import './App.css';
+import "./App.css";
 
 import React, { useState } from "react";
 import { Grid, Paper } from "@mui/material";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 
 import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
+import UserComments from "./components/UserComments";
 
 const App = () => {
   // Trạng thái bật/tắt tính năng nâng cao (Extra Credit)
@@ -18,9 +24,9 @@ const App = () => {
       <div>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TopBar 
-              advancedFeatures={advancedFeatures} 
-              setAdvancedFeatures={setAdvancedFeatures} 
+            <TopBar
+              advancedFeatures={advancedFeatures}
+              setAdvancedFeatures={setAdvancedFeatures}
             />
           </Grid>
 
@@ -35,10 +41,7 @@ const App = () => {
           <Grid item sm={9}>
             <Paper className="main-grid-item">
               <Routes>
-                <Route
-                  path="/users/:userId"
-                  element={<UserDetail />}
-                />
+                <Route path="/users/:userId" element={<UserDetail />} />
 
                 <Route
                   path="/photos/:userId/:photoId"
@@ -52,6 +55,8 @@ const App = () => {
                 <Route path="/users" element={<UserList />} />
 
                 <Route path="/" element={<Navigate to="/users" />} />
+
+                <Route path="/comments/:userId" element={<UserComments />} />
               </Routes>
             </Paper>
           </Grid>
@@ -59,6 +64,6 @@ const App = () => {
       </div>
     </Router>
   );
-}
+};
 
 export default App;
